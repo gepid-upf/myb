@@ -17,4 +17,4 @@ To make this code work, you need the following components:
 This application is using code based on:
 
 * MPU-6050 implementation for Arduino by [Jeff Rowberg](https://www.i2cdevlib.com).
-* MAX30100 implementation for AVR by [Raivis Strogonovs](https://morf.lv/).
+* MAX30100 implementation for AVR by [Raivis Strogonovs](https://morf.lv/)
