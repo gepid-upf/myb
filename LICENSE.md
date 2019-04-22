@@ -1,15 +1,23 @@
 MYB device library code is placed under the MIT License.
+
 I2Cdev device library code is placed under the MIT license.
+
 MAX30100 device library code is placed under the MIT license.
 
+
 Copyright (c) 2019
+
 Angelo Elias Dalzotto (150633@upf.br)
+
 Gabriel Boni Vicari (133192@upf.br) 
+
 GEPID - Grupo de Pesquisa em Cultura Digital (http://gepid.upf.br/)
+
 
 Copyright (c) 2012 Jeff Rowberg (https://www.i2cdevlib.com/)
 
 Copyright (c) 2017 Raivis Strogonovs (https://morf.lv/)
+
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
