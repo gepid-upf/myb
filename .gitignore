@@ -1,0 +1,6 @@
+bin
+build
+.vscode
+sdkconfig
+sdkconfig.old
+partitions.csv
