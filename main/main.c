@@ -1,5 +1,5 @@
 /**
- * @file example.c
+ * @file main.c
  * 
  * @author
  * Angelo Elias Dalzotto (150633@upf.br)
@@ -237,14 +237,12 @@ void step_counter()
                     break;
             }
 
-            printf("%s:  ", mpu6050_get_tag());
-            printf("X (Average): %d | Y (Average): %d\n", accel_x_avg, accel_y_avg);
-            printf("%s:  ", mpu6050_get_tag());
-            printf("Temperature: %.3f | Y: %d | Step Counter: %d\n", temp_c, accel_y_avg, step_count);
+            ESP_LOGI(mpu6050_get_tag(), "X (Average): %d | Y (Average): %d", accel_x_avg, accel_y_avg);
+            ESP_LOGI(mpu6050_get_tag(), "Temperature: %.3f | Y: %d | Step Counter: %d", temp_c, accel_y_avg, step_count);
 
             FILE* file = fopen("/spiffs/stepcount.csv", "a");
             if (file == NULL) {
-                printf("MAX30100: Failed to open file stepcount.csv for writing.\n");
+                ESP_LOGE(mpu6050_get_tag(), "Failed to open file stepcount.csv for writing.");
                 return;
             }
             fprintf(file, "%d,", step_count);
@@ -266,82 +264,27 @@ void bpm_counter(void* param)
 
     while (true) {
         max30100_update(&max30100, &result);
-        if (result.pulse_detected) {
-            bpm_count++;
-            bpm_final += result.heart_bpm;
+        if (result.pulse_detected)
+           ESP_LOGI(max30100_get_tag(), "BPM: %f | SpO2: %f%%", result.heart_bpm, result.spO2);
+
+        FILE* file = fopen("/spiffs/bpm.csv", "a");
+        if (file == NULL) {
+            ESP_LOGE(max30100_get_tag(), "Failed to open file bpm.csv for writing.");
+            return;
         }
-
-        if (bpm_count >= 30) {
-            bpm_final /= 30.0;
-            printf("MAX30100: BPM: %f | SpO2: %f%%\n", bpm_final, result.spO2);
-            bpm_count = 0;
-            bpm_final = 0;
-
-            FILE* file = fopen("/spiffs/bpm.csv", "a");
-            if (file == NULL) {
-                printf("MAX30100: Failed to open file bpm.csv for writing.\n");
-                return;
-            }
-            fprintf(file, "%f,", bpm_final);
-            fclose(file);
+        fprintf(file, "%f,", bpm_final);
+        fclose(file);
             
-            file = fopen("/spiffs/sp02.csv", "a");
-            if (file == NULL) {
-                printf("MAX30100: Failed to open file sp02.csv for writing.\n");
-                return;
-            }
-            fprintf(file, "%f,", result.spO2);
-            fclose(file);
+        file = fopen("/spiffs/sp02.csv", "a");
+        if (file == NULL) {
+            ESP_LOGE(max30100_get_tag(), "Failed to open file sp02.csv for writing.");
+            return;
         }
+        fprintf(file, "%f,", result.spO2);
+        fclose(file);
 
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
-}
-
-void read_spiffs(void* param)
-{
-    FILE* file_read = fopen("/spiffs/stepcount.csv", "r");
-    if (file_read == NULL) {
-        printf("MAX30100: Failed to open file for reading.\n");
-        return;
-    }
-    char line_read[1024];
-    fgets(line_read, sizeof(line_read), file_read);
-    fclose(file_read);
-
-    char* pos_read = strchr(line_read, '\n');
-    if (pos_read) {
-        *pos_read = '\0';
-    }
-    printf("MAX30100: Step count: '%s'", line_read);
-
-    file_read = fopen("/spiffs/bpm.csv", "r");
-    if (file_read == NULL) {
-        printf("MAX30100: Failed to open file for reading.\n");
-        return;
-    }
-    fgets(line_read, sizeof(line_read), file_read);
-    fclose(file_read);
-
-    pos_read = strchr(line_read, '\n');
-    if (pos_read) {
-        *pos_read = '\0';
-    }
-    printf("MAX30100: BPM: '%s'", line_read);
-    
-    file_read = fopen("/spiffs/sp02.csv", "r");
-    if (file_read == NULL) {
-        printf("MAX30100: Failed to open file for reading.\n");
-        return;
-    }
-    fgets(line_read, sizeof(line_read), file_read);
-    fclose(file_read);
-
-    pos_read = strchr(line_read, '\n');
-    if (pos_read) {
-        *pos_read = '\0';
-    }
-    printf("MAX30100: SP02: '%s'", line_read);
 }
 
 void app_main()
@@ -360,39 +303,39 @@ void app_main()
     ret = esp_vfs_spiffs_register(&spiffs_config);
     if (ret != ESP_OK) {    
         if (ret == ESP_FAIL)
-            printf("SPIFFS:   Failed to mount or format filesystem.\n");
+            ESP_LOGE("SPIFFS", "Failed to mount or format filesystem.");
         else if (ret == ESP_ERR_NOT_FOUND)
-            printf("SPIFFS:   Failed to find SPIFFS partition.\n");
+            ESP_LOGE("SPIFFS", "Failed to find SPIFFS partition.");
         else
-            printf("SPIFFS:   Failed to initialize SPIFFS (%s).\n", esp_err_to_name(ret));
+            ESP_LOGE("SPIFFS", "Failed to initialize SPIFFS (%s).", esp_err_to_name(ret));
     }
     else
-        printf("SPIFFS:   Initialized.\n");
+        ESP_LOGI("SPIFFS", "Initialized.");
 
     size_t total = 0, used = 0;
     ret = esp_spiffs_info(NULL, &total, &used);
     if (ret != ESP_OK) {
-        printf("SPIFFS:   Failed to get SPIFFS partition information (%s).\n", esp_err_to_name(ret));
+        ESP_LOGE("SPIFFS", "Failed to get SPIFFS partition information (%s).", esp_err_to_name(ret));
     } else {
-        printf("SPIFFS:   Partition size: total: %d, used: %d.\n", total, used);
+        ESP_LOGI("SPIFFS", "Partition size: total: %d, used: %d.", total, used);
     }
 
-    printf("%s:  Device ID: %d.\n", mpu6050_get_tag(), mpu6050_get_device_id());
+    ESP_LOGI(mpu6050_get_tag(), "Device ID: %d.", mpu6050_get_device_id());
 
     mpu6050_self_test(self_test);
-    printf("%s:  Device performing self-test.\n", mpu6050_get_tag());
+    ESP_LOGI(mpu6050_get_tag(), "Device performing self-test.");
 
     if (self_test[0] < 1.0f && self_test[1] < 1.0f && self_test[2] < 1.0f &&
         self_test[3] < 1.0f && self_test[4] < 1.0f && self_test[5] < 1.0f) {
         mpu6050_reset();
         mpu6050_calibrate(accel_bias, gyro_bias);
-        printf("%s:  Device being calibrated.\n", mpu6050_get_tag());
+        ESP_LOGI(mpu6050_get_tag(), "Device being calibrated.");
         mpu6050_init();
-        printf("%s:  Device initialized.\n", mpu6050_get_tag());
+        ESP_LOGI(mpu6050_get_tag(), "Device initialized.");
         xTaskCreate(step_counter, "StepCounter", 10000, (void*) 0, 10, NULL);
     } 
     else
-        printf("%s:  Device did not pass self-test.\n", mpu6050_get_tag());
+        ESP_LOGI(mpu6050_get_tag(), "Device did not pass self-test.");
 
     max30100_init
     (
@@ -408,10 +351,9 @@ void app_main()
         true,
         false
     );
-    printf("%s: Device ID: %d.\n", max30100_get_tag(), max30100_get_device_id());
-    printf("%s: Device initialized.\n", max30100_get_tag());
+    ESP_LOGI(max30100_get_tag(), "Device ID: %d.", max30100_get_device_id());
+    ESP_LOGI(max30100_get_tag(), "Device initialized.");
     xTaskCreate(bpm_counter, "BPMCounter", 10000, NULL, 1, NULL);
-    xTaskCreate(read_spiffs, "ReadSPIFFS", 10000, NULL, 1, NULL);
 
     esp_vfs_spiffs_unregister(NULL);
 }
