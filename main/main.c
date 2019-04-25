@@ -35,6 +35,7 @@
 float self_test[6] = {0, 0, 0, 0, 0, 0};
 float accel_bias[3] = {0, 0, 0};
 float gyro_bias[3] = {0, 0, 0};
+int buff[1024];
 
 max30100_config_t max30100;
 max30100_data_t result;
@@ -75,9 +76,10 @@ void step_counter()
     int max_current_accel_x, max_current_accel_y, max_current_accel_z;
     int dy_thres_accel_x = 0, dy_thres_accel_y = 0, dy_thres_accel_z = 0;
     int dy_chan_accel_x, dy_chan_accel_y, dy_chan_accel_z;
-    int sample_new = 0, sample_old = 0, return_samples = 0;
-    int step_size = 200, step_count = 0, count_accel = 0;
+    int sample_new = 0, sample_old = 0;
+    int step_size = 200, step_count = 0;
     int active_axis = 0, interval = 500000;
+    int step_changed = 0;
 
     while (true) {
         if (!mpu6050_get_int_dmp_status()) {
@@ -217,39 +219,45 @@ void step_counter()
                 case 0:
                     if (accel_x_avg - sample_old > step_size || accel_x_avg - sample_old < -step_size) {
                         sample_new = accel_x_avg;
-                        if (sample_old > dy_thres_accel_x && sample_new < dy_thres_accel_x)
+                        if (sample_old > dy_thres_accel_x && sample_new < dy_thres_accel_x) {
                             step_count++;
+                            step_changed = 1;
+                        }
                     }
                     break;
                 case 1:
                     if (accel_y_avg - sample_old > step_size || accel_y_avg - sample_old < -step_size) {
                         sample_new = accel_y_avg;
-                        if (sample_old > dy_thres_accel_y && sample_new < dy_thres_accel_y)
+                        if (sample_old > dy_thres_accel_y && sample_new < dy_thres_accel_y) {
                             step_count++;
+                            step_changed = 1;
+                        }
                     }
                     break;
                 case 2:
                     if (accel_z_avg - sample_old > step_size || accel_z_avg - sample_old < -step_size) {
                         sample_new = accel_z_avg;
-                        if (sample_old > dy_thres_accel_z && sample_new < dy_thres_accel_z)
+                        if (sample_old > dy_thres_accel_z && sample_new < dy_thres_accel_z) {
                             step_count++;
+                            step_changed = 1;
+                        }
                     }
                     break;
             }
 
-            ESP_LOGI(mpu6050_get_tag(), "X (Average): %d | Y (Average): %d", accel_x_avg, accel_y_avg);
-            ESP_LOGI(mpu6050_get_tag(), "Temperature: %.3f | Y: %d | Step Counter: %d", temp_c, accel_y_avg, step_count);
+            if (step_changed) {
+                ESP_LOGI(mpu6050_get_tag(), "X (Average): %d | Y (Average): %d", accel_x_avg, accel_y_avg);
+                ESP_LOGI(mpu6050_get_tag(), "Temperature: %.3f | Y: %d | Step Counter: %d", temp_c, accel_y_avg, step_count);
 
-            FILE* file = fopen("/spiffs/stepcount.csv", "a");
-            if (file == NULL) {
-                ESP_LOGE(mpu6050_get_tag(), "Failed to open file stepcount.csv for writing.");
-                return;
+                FILE* file_stepcount = fopen("/spiffs/stepcount.csv", "wa");
+                if (file_stepcount == NULL) {
+                    ESP_LOGE(mpu6050_get_tag(), "Failed to open file stepcount.csv for writing.");
+                    return;
+                }
+                fprintf(file_stepcount, "%d,", step_count);
+                fclose(file_stepcount);
+                step_changed = 0;
             }
-            fprintf(file, "%d,", step_count);
-            fclose(file);
-            
-            if (count_accel < SAMPLE_SIZE || (count_accel == SAMPLE_SIZE && return_samples == 1))
-                count_accel++;
             
             vTaskDelay(10 / portTICK_PERIOD_MS);
         }
@@ -259,30 +267,28 @@ void step_counter()
 void bpm_counter(void* param)
 {
     max30100_data_t result;
-    float bpm_final = 0;
-    int bpm_count = 0;
 
     while (true) {
         max30100_update(&max30100, &result);
-        if (result.pulse_detected)
-           ESP_LOGI(max30100_get_tag(), "BPM: %f | SpO2: %f%%", result.heart_bpm, result.spO2);
+        if (result.pulse_detected) {
+            ESP_LOGI(max30100_get_tag(), "BPM: %f | SpO2: %f%%", result.heart_bpm, result.spO2);
 
-        FILE* file = fopen("/spiffs/bpm.csv", "a");
-        if (file == NULL) {
-            ESP_LOGE(max30100_get_tag(), "Failed to open file bpm.csv for writing.");
-            return;
-        }
-        fprintf(file, "%f,", bpm_final);
-        fclose(file);
+            FILE* file_bpm = fopen("/spiffs/bpm.csv", "wa");
+            if (file_bpm == NULL) {
+                ESP_LOGE(max30100_get_tag(), "Failed to open file bpm.csv for writing.");
+                return;
+            }
+            fprintf(file_bpm, "%f,", result.heart_bpm);
+            fclose(file_bpm);
             
-        file = fopen("/spiffs/sp02.csv", "a");
-        if (file == NULL) {
-            ESP_LOGE(max30100_get_tag(), "Failed to open file sp02.csv for writing.");
-            return;
+            FILE* file_sp02 = fopen("/spiffs/sp02.csv", "wa");
+            if (file_sp02 == NULL) {
+                ESP_LOGE(max30100_get_tag(), "Failed to open file sp02.csv for writing.");
+                return;
+            }
+            fprintf(file_sp02, "%f,", result.spO2);
+            fclose(file_sp02);
         }
-        fprintf(file, "%f,", result.spO2);
-        fclose(file);
-
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
@@ -296,8 +302,8 @@ void app_main()
     esp_vfs_spiffs_conf_t spiffs_config = {
       .base_path = "/spiffs",
       .partition_label = NULL,
-      .max_files = 5,
-      .format_if_mount_failed = true
+      .max_files = 2,
+      .format_if_mount_failed = false
     };
 
     ret = esp_vfs_spiffs_register(&spiffs_config);
@@ -332,7 +338,7 @@ void app_main()
         ESP_LOGI(mpu6050_get_tag(), "Device being calibrated.");
         mpu6050_init();
         ESP_LOGI(mpu6050_get_tag(), "Device initialized.");
-        xTaskCreate(step_counter, "StepCounter", 10000, (void*) 0, 10, NULL);
+        xTaskCreate(step_counter, "StepCounter", 10000, NULL, 1, NULL);
     } 
     else
         ESP_LOGI(mpu6050_get_tag(), "Device did not pass self-test.");
@@ -354,6 +360,4 @@ void app_main()
     ESP_LOGI(max30100_get_tag(), "Device ID: %d.", max30100_get_device_id());
     ESP_LOGI(max30100_get_tag(), "Device initialized.");
     xTaskCreate(bpm_counter, "BPMCounter", 10000, NULL, 1, NULL);
-
-    esp_vfs_spiffs_unregister(NULL);
 }
