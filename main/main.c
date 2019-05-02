@@ -35,7 +35,6 @@
 float self_test[6] = {0, 0, 0, 0, 0, 0};
 float accel_bias[3] = {0, 0, 0};
 float gyro_bias[3] = {0, 0, 0};
-int buff[1024];
 
 max30100_config_t max30100;
 max30100_data_t result;
@@ -339,7 +338,7 @@ void app_main()
         mpu6050_init();
         ESP_LOGI(mpu6050_get_tag(), "Device initialized.");
         xTaskCreate(step_counter, "StepCounter", 10000, NULL, 1, NULL);
-    } 
+    }
     else
         ESP_LOGI(mpu6050_get_tag(), "Device did not pass self-test.");
 
