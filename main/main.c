@@ -7,7 +7,7 @@
  * GEPID - Grupo de Pesquisa em Cultura Digital (http://gepid.upf.br/)
  * Universidade de Passo Fundo (http://www.upf.br/)
  *
- * @copyright 2018 Angelo Elias Dalzotto, Gabriel Boni Vicari
+ * @copyright 2018-2019 Angelo Elias Dalzotto, Gabriel Boni Vicari
  *
  * @brief Main file for the MYB project for the ESP-IDF.
  */
@@ -29,19 +29,18 @@
 #define SAMPLE_SIZE     2000
 #define I2C_SDA         26
 #define I2C_SCL         25
-#define I2C_FREQ        400000
+#define I2C_FREQ        100000
 #define I2C_PORT        I2C_NUM_0
 
 float self_test[6] = {0, 0, 0, 0, 0, 0};
 float accel_bias[3] = {0, 0, 0};
 float gyro_bias[3] = {0, 0, 0};
 
-max30100_config_t max30100;
-max30100_data_t result;
+max30100_config_t max30100 = {};
 
 esp_err_t i2c_master_init()
 {
-    i2c_config_t conf;
+    i2c_config_t conf = {};
     conf.mode = I2C_MODE_MASTER;
     conf.sda_io_num = I2C_SDA;
     conf.scl_io_num = I2C_SCL;
@@ -265,16 +264,16 @@ void step_counter()
 
 void bpm_counter(void* param)
 {
-    max30100_data_t result;
+    max30100_data_t result = {};
 
     while (true) {
         max30100_update(&max30100, &result);
         if (result.pulse_detected) {
-            ESP_LOGI(max30100_get_tag(), "BPM: %f | SpO2: %f%%", result.heart_bpm, result.spO2);
+            ESP_LOGI("MAX30100", "BPM: %f", result.heart_bpm);
 
             FILE* file_bpm = fopen("/spiffs/bpm.csv", "wa");
             if (file_bpm == NULL) {
-                ESP_LOGE(max30100_get_tag(), "Failed to open file bpm.csv for writing.");
+                ESP_LOGE("MAX30100", "Failed to open file bpm.csv for writing.");
                 return;
             }
             fprintf(file_bpm, "%f,", result.heart_bpm);
@@ -282,7 +281,7 @@ void bpm_counter(void* param)
             
             FILE* file_sp02 = fopen("/spiffs/sp02.csv", "wa");
             if (file_sp02 == NULL) {
-                ESP_LOGE(max30100_get_tag(), "Failed to open file sp02.csv for writing.");
+                ESP_LOGE("MAX30100", "Failed to open file sp02.csv for writing.");
                 return;
             }
             fprintf(file_sp02, "%f,", result.spO2);
@@ -296,7 +295,7 @@ void app_main()
 {
     esp_err_t ret;
 
-    i2c_master_init();
+    ESP_ERROR_CHECK(i2c_master_init());
 
     esp_vfs_spiffs_conf_t spiffs_config = {
       .base_path = "/spiffs",
@@ -337,12 +336,12 @@ void app_main()
         ESP_LOGI(mpu6050_get_tag(), "Device being calibrated.");
         mpu6050_init();
         ESP_LOGI(mpu6050_get_tag(), "Device initialized.");
-        xTaskCreate(step_counter, "StepCounter", 10000, NULL, 1, NULL);
+        xTaskCreate(step_counter, "StepCounter", 8192, NULL, 1, NULL);
     }
     else
         ESP_LOGI(mpu6050_get_tag(), "Device did not pass self-test.");
 
-    max30100_init
+    ESP_ERROR_CHECK(max30100_init
     (
         &max30100,
         I2C_PORT,
@@ -352,11 +351,13 @@ void app_main()
         MAX30100_DEFAULT_IR_LED_CURRENT,
         MAX30100_DEFAULT_START_RED_LED_CURRENT,
         MAX30100_DEFAULT_MEAN_FILTER_SIZE,
-        5,
+        1,
         true,
         false
-    );
-    ESP_LOGI(max30100_get_tag(), "Device ID: %d.", max30100_get_device_id());
-    ESP_LOGI(max30100_get_tag(), "Device initialized.");
-    xTaskCreate(bpm_counter, "BPMCounter", 10000, NULL, 1, NULL);
+    ));
+    // Higher sensibility. More susceptible to noises
+    //ESP_ERROR_CHECK(max30100_set_pulse_min_threshold(&max30100, 20));
+    //ESP_LOGI("MAX30100", "Device ID: %d.", max30100_get_device_id());
+    ESP_LOGI("MAX30100", "Device initialized.");
+    xTaskCreate(bpm_counter, "BPMCounter", 8192, NULL, 1, NULL);
 }
