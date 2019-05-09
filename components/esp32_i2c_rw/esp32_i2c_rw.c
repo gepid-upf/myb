@@ -202,7 +202,6 @@ int8_t esp32_i2c_write_word
 )
 {
 	uint8_t data_1[] = {(uint8_t) (data >> 8), (uint8_t) (data & 0xFF)};
-	uint8_t data_2[] = {(uint8_t) (data & 0xFF), (uint8_t) (data >> 8)};
 
 	esp32_i2c_write_bytes(device_address, register_address, 2, data_1);
 
