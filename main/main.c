@@ -7,7 +7,7 @@
  * GEPID - Grupo de Pesquisa em Cultura Digital (http://gepid.upf.br/)
  * Universidade de Passo Fundo (http://www.upf.br/)
  *
- * @copyright 2018 Angelo Elias Dalzotto, Gabriel Boni Vicari
+ * @copyright 2018-2019 Angelo Elias Dalzotto, Gabriel Boni Vicari
  *
  * @brief Main file for the MYB project for the ESP-IDF.
  */
