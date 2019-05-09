@@ -1,7 +1,5 @@
 bin
 build
 .vscode
-sdkconfig
-sdkconfig.old
 instructions.txt
 spiffs.bin
