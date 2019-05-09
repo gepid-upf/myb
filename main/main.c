@@ -21,8 +21,8 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_spiffs.h"
-#include "mpu6050/mpu6050.h"
-#include "max30100/max30100.h"
+#include "mpu6050.h"
+#include "max30100.h"
 
 #define PI              3.14159265358979323846f
 #define AVG_BUFF_SIZE   20
