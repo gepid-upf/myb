@@ -15,7 +15,7 @@
 #define MPU6050_H
 
 #include <math.h>
-#include "esp32_i2c_rw.h"
+#include "esp32_i2c_rw/esp32_i2c_rw.h"
 #include "mpu6050_registers.h"
 
 // Address of MPU6050 (Can be 0x68 or 0x69):

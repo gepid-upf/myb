@@ -21,8 +21,8 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_spiffs.h"
-#include "mpu6050.h"
-#include "max30100.h"
+#include "mpu6050/mpu6050.h"
+#include "max30100/max30100.h"
 
 #define PI              3.14159265358979323846f
 #define AVG_BUFF_SIZE   20
@@ -36,8 +36,7 @@ float self_test[6] = {0, 0, 0, 0, 0, 0};
 float accel_bias[3] = {0, 0, 0};
 float gyro_bias[3] = {0, 0, 0};
 
-max30100_config_t max30100;
-max30100_data_t result;
+max30100_config_t max30100 = {};
 
 esp_err_t i2c_master_init()
 {
@@ -265,16 +264,16 @@ void step_counter()
 
 void bpm_counter(void* param)
 {
-    max30100_data_t result;
+    max30100_data_t result = {};
 
     while (true) {
         max30100_update(&max30100, &result);
         if (result.pulse_detected) {
-            ESP_LOGI(max30100_get_tag(), "BPM: %f | SpO2: %f%%", result.heart_bpm, result.spO2);
+            ESP_LOGI("MAX30100", "BPM: %f", result.heart_bpm);
 
             FILE* file_bpm = fopen("/spiffs/bpm.csv", "wa");
             if (file_bpm == NULL) {
-                ESP_LOGE(max30100_get_tag(), "Failed to open file bpm.csv for writing.");
+                ESP_LOGE("MAX30100", "Failed to open file bpm.csv for writing.");
                 return;
             }
             fprintf(file_bpm, "%f,", result.heart_bpm);
@@ -282,7 +281,7 @@ void bpm_counter(void* param)
             
             FILE* file_sp02 = fopen("/spiffs/sp02.csv", "wa");
             if (file_sp02 == NULL) {
-                ESP_LOGE(max30100_get_tag(), "Failed to open file sp02.csv for writing.");
+                ESP_LOGE("MAX30100", "Failed to open file sp02.csv for writing.");
                 return;
             }
             fprintf(file_sp02, "%f,", result.spO2);
@@ -346,17 +345,17 @@ void app_main()
     (
         &max30100,
         I2C_PORT,
-        MAX30100_DEFAULT_OPERATING_MODE,
+        MAX30100_MODE_HR_ONLY,
         MAX30100_DEFAULT_SAMPLING_RATE,
         MAX30100_DEFAULT_LED_PULSE_WIDTH,
         MAX30100_DEFAULT_IR_LED_CURRENT,
         MAX30100_DEFAULT_START_RED_LED_CURRENT,
         MAX30100_DEFAULT_MEAN_FILTER_SIZE,
-        5,
+        1,
         true,
         false
     );
-    ESP_LOGI(max30100_get_tag(), "Device ID: %d.", max30100_get_device_id());
-    ESP_LOGI(max30100_get_tag(), "Device initialized.");
+    //ESP_LOGI("MAX30100", "Device ID: %d.", max30100_get_device_id());
+    ESP_LOGI("MAX30100", "Device initialized.");
     xTaskCreate(bpm_counter, "BPMCounter", 10000, NULL, 1, NULL);
 }
