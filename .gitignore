@@ -3,6 +3,5 @@ build
 .vscode
 sdkconfig
 sdkconfig.old
-partitions.csv
 instructions.txt
 spiffs.bin
