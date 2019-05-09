@@ -29,7 +29,7 @@
 #define SAMPLE_SIZE     2000
 #define I2C_SDA         26
 #define I2C_SCL         25
-#define I2C_FREQ        400000
+#define I2C_FREQ        100000
 #define I2C_PORT        I2C_NUM_0
 
 float self_test[6] = {0, 0, 0, 0, 0, 0};
@@ -40,7 +40,7 @@ max30100_config_t max30100 = {};
 
 esp_err_t i2c_master_init()
 {
-    i2c_config_t conf;
+    i2c_config_t conf = {};
     conf.mode = I2C_MODE_MASTER;
     conf.sda_io_num = I2C_SDA;
     conf.scl_io_num = I2C_SCL;
@@ -295,7 +295,7 @@ void app_main()
 {
     esp_err_t ret;
 
-    i2c_master_init();
+    ESP_ERROR_CHECK(i2c_master_init());
 
     esp_vfs_spiffs_conf_t spiffs_config = {
       .base_path = "/spiffs",
@@ -336,16 +336,16 @@ void app_main()
         ESP_LOGI(mpu6050_get_tag(), "Device being calibrated.");
         mpu6050_init();
         ESP_LOGI(mpu6050_get_tag(), "Device initialized.");
-        xTaskCreate(step_counter, "StepCounter", 10000, NULL, 1, NULL);
+        xTaskCreate(step_counter, "StepCounter", 8192, NULL, 1, NULL);
     }
     else
         ESP_LOGI(mpu6050_get_tag(), "Device did not pass self-test.");
 
-    max30100_init
+    ESP_ERROR_CHECK(max30100_init
     (
         &max30100,
         I2C_PORT,
-        MAX30100_MODE_HR_ONLY,
+        MAX30100_DEFAULT_OPERATING_MODE,
         MAX30100_DEFAULT_SAMPLING_RATE,
         MAX30100_DEFAULT_LED_PULSE_WIDTH,
         MAX30100_DEFAULT_IR_LED_CURRENT,
@@ -354,8 +354,10 @@ void app_main()
         1,
         true,
         false
-    );
+    ));
+    // Higher sensibility. More susceptible to noises
+    //ESP_ERROR_CHECK(max30100_set_pulse_min_threshold(&max30100, 20));
     //ESP_LOGI("MAX30100", "Device ID: %d.", max30100_get_device_id());
     ESP_LOGI("MAX30100", "Device initialized.");
-    xTaskCreate(bpm_counter, "BPMCounter", 10000, NULL, 1, NULL);
+    xTaskCreate(bpm_counter, "BPMCounter", 8192, NULL, 1, NULL);
 }
