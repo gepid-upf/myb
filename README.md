@@ -83,8 +83,8 @@ PARTITION OFFSET = 0x110000
 
 3. On the menuconfig, use the following options:
 ```
-Flash size: 4MB;
-Partition Table: Custom Partition Table CSV, and choose the partitions.csv file.
+Flash size: 4MB
+Partition Table: Custom Partition Table CSV (Choose the partitions.csv file)
 ```
 
 4. Compile with the latest ESP-IDF installed from GitHub and download it to the module.
@@ -100,12 +100,11 @@ The software has 3 libraries, all located in the components folder:
 * component.mk - files used by C `make` command to access component during compilation.
 
 Application is executed from [main.c](main/main.c) file located in main folder.
-
 The main file has a step counter function, as well as log functions and routines that store the readings in the SPIFFS.
 
 ## Next Steps
 
-We are planning to add the GATT Bluetooth functionality to send the data stored in the SPIFFS to an app.
+- [ ] Add the GATT Bluetooth functionality to send the data stored in the SPIFFS to an app.
 
 ## License
 
