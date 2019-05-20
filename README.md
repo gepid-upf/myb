@@ -15,7 +15,6 @@ Code provided in this repository gets the raw data from MPU-6050 and MAX30100, c
 - [How It Works](#how-it-works)
 - [Next Steps](#next-steps)
   - [Software](#software)
-- [Authors](#authors)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
