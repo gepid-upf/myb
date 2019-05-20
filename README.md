@@ -12,7 +12,7 @@ Code provided in this repository gets the raw data from MPU-6050 and MAX30100, c
 - [Quick Start](#quick-start)
   - [Connect](#connect)
   - [Configuration and Flash](#configuration-and-flash)
-- [How It Work](#how-it-works)
+- [How It Works](#how-it-works)
 - [Next Steps](#next-steps)
   - [Software](#software)
 - [License](#license)
@@ -94,7 +94,7 @@ Partition Table: Custom Partition Table CSV, and choose the partitions.csv file.
 ### Software
 
 The software has 3 libraries, all located in the components folder:
-* [esp32_i2c_rw.c](https://github.com/gabrielbvicari/esp32-i2c_rw/blob/f532d6a554dc2f2daa3954b597072ecb48354688/esp32_i2c_rw.c) and [include/esp32_i2c_rw.h](https://github.com/gabrielbvicari/esp32-i2c_rw/blob/f532d6a554dc2f2daa3954b597072ecb48354688/include/esp32_i2c_rw/esp32_i2c_rw.h) - library with read/write function for the I2C communication used in the [MPU-6050](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/mpu6050.c) library.
+* [esp32_i2c_rw.c](https://github.com/gabrielbvicari/esp32-i2c_rw/blob/f532d6a554dc2f2daa3954b597072ecb48354688/esp32_i2c_rw.c) and [include/esp32_i2c_rw.h](https://github.com/gabrielbvicari/esp32-i2c_rw/blob/f532d6a554dc2f2daa3954b597072ecb48354688/include/esp32_i2c_rw/esp32_i2c_rw.h) - library with read/write function for the I2C communication used in the [MPU-6050](https://github.com/gabrielbvicari/esp32-mpu6050) library.
 * [mpu6050.c](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/mpu6050.c) and [include/mpu6050.h](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/include/mpu6050/mpu6050.h) - setters/getters functions for the MPU-6050 registers and other functions like calibrate and self-test and [include/mpu6050_registers.h](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/include/mpu6050/mpu6050_registers.h) - definition of the registers of the MPU-6050.
 * [max30100.c](https://github.com/aedalzotto/esp32-max30100/blob/2585aa70b25955ecb60d2d8fb26c5cbb76526d65/max30100.c) and [include/max30100.h](https://github.com/aedalzotto/esp32-max30100/blob/2585aa70b25955ecb60d2d8fb26c5cbb76526d65/include/max30100/max30100.h) - setters/getters functions for the MAX30100 registers and implementations of butterworth filter and DC removal filter and [include/registers.h](https://github.com/aedalzotto/esp32-max30100/blob/2585aa70b25955ecb60d2d8fb26c5cbb76526d65/include/max30100/registers.h) - definition of the registers of the MAX30100.
 * component.mk - files used by C `make` command to access component during compilation.
