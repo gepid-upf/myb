@@ -4,3 +4,4 @@ build
 instructions.txt
 spiffs.bin
 sdkconfig.old
+sdkconfig
