@@ -67,6 +67,8 @@ If the sensors are not communicating with the ESP 32, consider adding 10kΩ pull
 
 If you're using ESP 32 on Windows and is having the [ESP 32 Reset To Bootloader Issue (#136)](https://github.com/espressif/esptool/issues/136), add a 2.2uF capacitor conencted between GND and EN pins of ESP 32 module.
 
+![alt text](images/wiring.png "Wiring for ESP 32 DevKitC.")
+
 ### Configuration and Flash
 
 1. Clone the code provided in this repository to your PC.
@@ -104,7 +106,7 @@ The main file has a step counter function, as well as log functions and routines
 
 ## Next Steps
 
-- [ ] Add the GATT Bluetooth functionality to send the data stored in the SPIFFS to an app.
+Add the GATT Bluetooth functionality to send the data stored in the SPIFFS to an app.
 
 ## License
 
