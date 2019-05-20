@@ -96,11 +96,11 @@ Partition Table: Custom Partition Table CSV (choose the partitions.csv file)
 ### Software
 
 The software has 3 libraries, all located in the components folder:
-* [esp32_i2c_rw.c](components/esp32-i2c_rw/esp32_i2c_rw.c) and [include/esp32_i2c_rw.h](components/esp32-i2c_rw/include/esp32_i2c_rw/esp32_i2c_rw.h) - implementation of the I2C protocol used by the [MPU-6050](https://github.com/gabrielbvicari/esp32-mpu6050) library.
+* [esp32_i2c_rw.c](https://github.com/gabrielbvicari/esp32-i2c_rw/blob/f532d6a554dc2f2daa3954b597072ecb48354688/esp32_i2c_rw.c) and [include/esp32_i2c_rw.h](https://github.com/gabrielbvicari/esp32-i2c_rw/blob/f532d6a554dc2f2daa3954b597072ecb48354688/include/esp32_i2c_rw/esp32_i2c_rw.h) - implementation of the I2C protocol used by the [MPU-6050](https://github.com/gabrielbvicari/esp32-mpu6050) library.
 
-* [mpu6050.c](https://github.com/gabrielbvicari/esp32-mpu6050/mpu6050.c), [include/mpu6050.h](components/esp32-mpu6050/include/mpu6050/mpu6050.h) and [include/mpu6050_registers.h](components/esp32-mpu6050/include/mpu6050/mpu6050_registers.h) - definition of the registers of the MPU-6050, setters/getters functions for the registers aswell as functions of calibration and self-test.
+* [mpu6050.c](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/mpu6050.c), [include/mpu6050.h](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/include/mpu6050/mpu6050.h) and [include/mpu6050_registers.h](https://github.com/gabrielbvicari/esp32-mpu6050/blob/fa99df4a75917e85b31b20e94344acca3d00d556/include/mpu6050/mpu6050_registers.h) - definition of the registers of the MPU-6050, setters/getters functions for the registers aswell as functions of calibration and self-test.
 
-* [max30100.c](components/esp32-max30100/max30100.c), [include/max30100.h](components/esp32-max30100/include/max30100/max30100.h) and [include/registers.h](components/esp32-max30100/include/max30100/registers.h) - definition of the registers of the MAX3010, setters/getters functions for the registers aswell as implementations of filters (Butterworth, DC Removal and Moving Average).
+* [max30100.c](https://github.com/aedalzotto/esp32-max30100/blob/2585aa70b25955ecb60d2d8fb26c5cbb76526d65/max30100.c), [include/max30100.h](https://github.com/aedalzotto/esp32-max30100/blob/2585aa70b25955ecb60d2d8fb26c5cbb76526d65/include/max30100/max30100.h) and [include/registers.h](https://github.com/aedalzotto/esp32-max30100/blob/2585aa70b25955ecb60d2d8fb26c5cbb76526d65/include/max30100/registers.h) - definition of the registers of the MAX3010, setters/getters functions for the registers aswell as implementations of filters (Butterworth, DC Removal and Moving Average).
 
 * component.mk - files used by C `make` command to access component during compilation.
 
