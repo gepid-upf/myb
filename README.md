@@ -15,6 +15,7 @@ Code provided in this repository gets the raw data from MPU-6050 and MAX30100, c
 - [How It Work](#how-it-works)
 - [Next Steps](#next-steps)
   - [Software](#software)
+- [License](#license)
 - [Acknowledgments](#acknowledgments)
 
 ## Components
@@ -47,7 +48,7 @@ Any MAX30100 module should work.
 
 ## Quick Start
 
-If you have your components ready, follow this section to [connect](#connect) the components to the ESP 32 module, [flash](#flash) application to the ESP 32 and [monitor](#monitor) the data.
+If you have your components ready, follow this section to [connect](#connect) the components to the ESP 32 module, [flash](#configuration-and-flash) the application to the ESP 32 and monitor the data.
 
 ### Connect
 
@@ -72,7 +73,7 @@ If you're using ESP 32 on Windows and is having the [ESP 32 Reset To Bootloader 
 
 2. To use the SPIFFS, you need a tool to create the SPIFFS partition image - I recommend using [igrr](https://github.com/igrr)'s [mkspiffs](https://github.com/igrr/mkspiffs).
 After creating the SPIFFS image, use the esptool to flash it to the module.
-If you're gonna use the partitions.csv, use the following config:
+If you're gonna use the `partitions.csv`, use the following config:
 ```
 BLOCK SIZE = 4096
 PAGE SIZE = 256
@@ -81,8 +82,10 @@ PARTITION OFFSET = 0x110000
 ```
 
 3. On the menuconfig, use the following options:
-    Flash size: 4MB;
-    Partition Table: Custom Partition Table CSV, and choose the partitions.csv file.
+```
+Flash size: 4MB;
+Partition Table: Custom Partition Table CSV, and choose the partitions.csv file.
+```
 
 4. Compile with the latest ESP-IDF installed from GitHub and download it to the module.
 
@@ -94,12 +97,17 @@ The software has 3 libraries, all located in the components folder:
 * [esp32_i2c_rw.c](components/esp32-i2c_rw/esp32_i2c_rw.c) and [include/esp32_i2c_rw.h](components/esp32-i2c_rw/include/esp32_i2c_rw/esp32_i2c_rw.h) - library with read/write function for the I2C communication used in the [MPU-6050](components/esp32-mpu6050/mpu6050.c) library.
 * [mpu6050.c](components/esp32-mpu6050/mpu6050.c) and [include/mpu6050.h](components/esp32-mpu6050/include/mpu6050/mpu6050.h) - setters/getters functions for the MPU-6050 registers and other functions like calibrate and self-test and [include/mpu6050_registers.h](components/esp32-mpu6050/include/mpu6050/mpu6050_registers.h) - definition of the registers of the MPU-6050.
 * [max30100.c](components/esp32-max30100/max30100.c) and [include/max30100.h](components/esp32-max30100/include/max30100/max30100.h) - setters/getters functions for the MAX30100 registers and implementations of butterworth filter and DC removal filter and [include/registers.h](components/esp32-max30100/include/max30100/registers.h) - definition of the registers of the MAX30100.
+* component.mk - files used by C `make` command to access component during compilation.
 
-Application is executed from main.c file located in main folder.
+Application is executed from [main.c](main/main.c) file located in main folder.
 
 ## Next Steps
 
 We are planning to add the bluetooth functionality to send the data stored in the SPIFFS to an app.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
 
 ## Acknowledgments
 
