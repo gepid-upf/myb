@@ -5,3 +5,5 @@ instructions.txt
 spiffs.bin
 sdkconfig.old
 sdkconfig
+*.b#*
+*.s#*
